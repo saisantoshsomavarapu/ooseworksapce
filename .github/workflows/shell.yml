@@ -1,17 +1,17 @@
-name: "GitHub Actions Shell"
+name: Deployment Metrics
 on:
-  workflow_dispatch:
-    inputs:
-      command:
-        description: 'The command to run'
-        required: true
+  release:
+    types: [published, deleted]
 jobs:
-  run:
+  ctoai-metrics:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - run: ${{ github.event.inputs.command }}
-    env:
-      GIT_COMMITTER_NAME: GitHub Actions Shell
-      GIT_AUTHOR_NAME: GitHub Actions Shell
-      EMAIL: github-actions[bot]@users.noreply.github.com
+      - name: 'Report Deployment Succeeded'
+        if: github.event.action == 'published' && github.event.release.prerelease == false
+        uses: cto-ai/action@v1.2
+        id: ctoai-action
+        with:
+          team_id: ${{ secrets.CTOAI_TEAM }}
+          token: ${{ secrets.CTOAI_TOKEN }}
+          event_name: "deployment"
+          event_action: "succeeded"
